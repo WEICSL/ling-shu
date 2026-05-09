@@ -37,20 +37,30 @@ bash
 pip install -r requirements.txt
 
 4. 配置环境变量
-创建 .env 文件：
+创建 .env 文件
+编辑 .env 文件，填入你的配置：
+
+DEEPSEEK_API_KEY：从 DeepSeek 平台 获取
+
+SECRET_KEY：任意随机字符串，可用 openssl rand -hex 32 生成
+
+注意：.env 文件包含敏感信息，已被 .gitignore 排除，不会上传到仓库
 
 env
 DEEPSEEK_API_KEY=你的API密钥
 SECRET_KEY=你的Django密钥
 DEBUG=True
+
 5. 数据库迁移
 bash
 python manage.py makemigrations
 python manage.py migrate
-6. 创建超级用户（可选）
+
+7. 创建超级用户（可选）
 bash
 python manage.py createsuperuser
-7. 运行项目
+
+9. 运行项目
 bash
 python manage.py runserver
 访问 http://127.0.0.1:8000
