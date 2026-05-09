@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Tia · AI专属对话</title>
+
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+				font-family: "Microsoft YaHei", sans-serif;
+			}
+
+			body {
+				background: linear-gradient(135deg, #1e1e2f, #292947);
+				min-height: 100vh;
+				color: #fff;
+				padding: 20px;
+				position: relative;
+			}
+
+			.history-box {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				width: 220px;
+				background: rgba(30, 30, 47, 0.95);
+				border-radius: 12px;
+				padding: 15px;
+				overflow-y: auto;
+				z-index: 10;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+			}
+
+			.history-box h3 {
+				font-size: 14px;
+				margin-bottom: 10px;
+				color: #fff;
+			}
+
+			.new-chat-btn {
+				width: 100%;
+				padding: 8px 10px;
+				margin-bottom: 10px;
+				background: #4a6cf3;
+				color: #fff;
+				border: none;
+				border-radius: 6px;
+				font-size: 13px;
+				cursor: pointer;
+			}
+
+			.history-item {
+				padding: 8px 10px;
+				margin-bottom: 6px;
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 6px;
+				font-size: 13px;
+				cursor: pointer;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				position: relative;
+				color: #fff;
+			}
+
+			.history-item.active {
+				background: #4a6cf3;
+				color: #fff;
+			}
+
+			.history-item .del-btn {
+				position: absolute;
+				right: 6px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 18px;
+				height: 18px;
+				line-height: 18px;
+				text-align: center;
+				background: #ff4444;
+				color: white;
+				border-radius: 50%;
+				font-size: 12px;
+				display: none;
+				cursor: pointer;
+			}
+
+			.history-item:hover .del-btn {
+				display: block;
+			}
+
+			.chat-container {
+				width: 50%;
+				margin: 0 auto;
+				margin-top: 20px;
+				display: flex;
+				flex-direction: column;
+				height: calc(100vh - 140px);
+			}
+
+			.chat-head {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 10px;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			.chat-title {
+				font-size: 16px;
+				font-weight: bold;
+				color: #fff;
+			}
+
+			.btn-row {
+				display: flex;
+				gap: 8px;
+				flex-wrap: wrap;
+			}
+
+			.clear-btn,
+			.setting-btn {
+				padding: 6px 12px;
+				background: rgba(255, 255, 255, 0.2);
+				color: #fff;
+				border: none;
+				border-radius: 15px;
+				font-size: 12px;
+				cursor: pointer;
+			}
+
+			.clear-btn:hover,
+			.setting-btn:hover {
+				background: rgba(255, 255, 255, 0.3);
+			}
+
+			.back-btn {
+				padding: 6px 12px;
+				background: #6366f1;
+				color: #fff;
+				border: none;
+				border-radius: 15px;
+				font-size: 12px;
+				cursor: pointer;
+			}
+
+			#personality-select {
+				padding: 6px 12px;
+				background: rgba(255, 255, 255, 0.2);
+				color: #fff;
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				border-radius: 15px;
+				cursor: pointer;
+				font-size: 12px;
+			}
+
+			#personality-select option {
+				background: #2d2d44;
+				color: #fff;
+			}
+
+			.chat-box {
+				flex: 1;
+				background: rgba(255, 255, 255, 0.08);
+				border-radius: 12px;
+				padding: 20px;
+				overflow-y: auto;
+				margin-bottom: 15px;
+			}
+
+			.message-item {
+				margin-bottom: 15px;
+				display: flex;
+				flex-direction: column;
+				position: relative;
+			}
+
+			.user-message {
+				align-items: flex-end;
+			}
+
+			.ai-message {
+				align-items: flex-start;
+			}
+
+			.message-bubble {
+				max-width: 70%;
+				padding: 12px 16px;
+				border-radius: 18px;
+				line-height: 1.5;
+				word-wrap: break-word;
+				font-size: 15px;
+				position: relative;
+			}
+
+			.user-message .message-bubble {
+				background: #4a6cf3;
+				color: #fff;
+			}
+
+			.ai-message .message-bubble {
+				background: rgba(50, 50, 70, 0.95);
+				color: #f0f0f0;
+				border: 1px solid rgba(255, 255, 255, 0.15);
+			}
+
+			.input-area {
+				display: flex;
+				gap: 10px;
+			}
+
+			#chat-input {
+				flex: 1;
+				padding: 15px;
+				border: none;
+				border-radius: 25px;
+				background: rgba(255, 255, 255, 0.15);
+				color: #fff;
+				font-size: 16px;
+				outline: none;
+			}
+
+			#chat-input::placeholder {
+				color: rgba(255, 255, 255, 0.5);
+			}
+
+			#send-btn {
+				padding: 15px 30px;
+				border: none;
+				border-radius: 25px;
+				background: #4a6cf3;
+				color: #fff;
+				font-size: 16px;
+				cursor: pointer;
+			}
+
+			#send-btn:disabled {
+				background: #666;
+				cursor: not-allowed;
+			}
+
+			.system-bubble {
+				border: 2px dashed rgba(255, 255, 255, 0.6);
+				opacity: 0.9;
+			}
+
+			.system-shy .message-bubble {
+				background: #d4788a !important;
+				color: #fff !important;
+			}
+
+			.system-angry .message-bubble {
+				background: #e06060 !important;
+				color: #fff !important;
+			}
+
+			.message-item {
+				animation: fadeIn 0.3s ease;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(8px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.chat-box::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			.chat-box::-webkit-scrollbar-track {
+				background: rgba(255, 255, 255, 0.1);
+				border-radius: 3px;
+			}
+
+			.chat-box::-webkit-scrollbar-thumb {
+				background: rgba(255, 255, 255, 0.3);
+				border-radius: 3px;
+			}
+
+			.chat-box::-webkit-scrollbar-thumb:hover {
+				background: rgba(255, 255, 255, 0.5);
+			}
+
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@keyframes fadeOutDown {
+				from {
+					opacity: 1;
+					transform: translateY(0);
+				}
+
+				to {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+			}
+
+			#model-select {
+				padding: 6px 12px;
+				background: rgba(255, 255, 255, 0.2);
+				color: #fff;
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				border-radius: 15px;
+				cursor: pointer;
+				font-size: 12px;
+			}
+
+			#model-select option {
+				background: #2d2d44;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		{% load static %}
+		<div class="history-box">
+			<h3>对话历史</h3>
+			<button class="new-chat-btn" onclick="newChat()">+ 新建对话</button>
+			<div id="history-list"></div>
+		</div>
+
+		<div class="chat-container">
+			<div class="chat-head">
+				<div class="chat-title">Tia · AI专属对话</div>
+				<div class="btn-row">
+					<select id="model-select"
+						style="padding: 6px 12px; background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 15px;">
+						<option value="qwen2:7b">qwen2:7b (本地)</option>
+						<option value="qwen3-vl:8b">qwen3-vl:8b (本地)</option>
+						<option value="deepseek-chat">DeepSeek (云端)</option>
+					</select>
+					<select id="personality-select">
+						<option value="">选择人设...</option>
+					</select>
+					<button class="clear-btn" onclick="clearChat()">清空对话</button>
+					<button class="back-btn" onclick="window.location.href='/'">← 返回主界面</button>
+					<button class="setting-btn" onclick="window.location.href='/personality/'">⚙️ 人设管理</button>
+				</div>
+			</div>
+			<div class="chat-box" id="chat-box"></div>
+			<div class="input-area">
+				<input type="text" id="chat-input" placeholder="输入消息，按Enter发送">
+				<button id="send-btn">发送</button>
+			</div>
+		</div>
+		<div id="live2d-widget" style="cursor: pointer; pointer-events: auto;"></div>
+		<script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.1.4/lib/L2Dwidget.min.js"></script>
+
+		<script>
+			// ========== Live2D 相关 ==========
+			let live2dModel;
+			let tapCount = 0;
+			let tapTimer = null;
+			const MAX_TAP_COUNT = 3;
+
+			window.addEventListener('load', () => {
+				L2Dwidget.init({
+					model: {
+						jsonPath: "{% static 'live2d/tia/tia.model.json' %}",
+						type: "Cubism2"
+					},
+					display: {
+						position: "left",
+						width: 350,
+						height: 350,
+						hOffset: 0,
+						vOffset: -20
+					},
+					mobile: {
+						show: true,
+						width: 200,
+						height: 200
+					},
+					react: {
+						opacityDefault: 1,
+						opacityOnHover: 1
+					},
+					onLoad: (model) => {
+						live2dModel = model;
+						console.log("✅ Tia模型渲染完成！");
+						setTimeout(forceBindClick, 1500);
+						setExpression("idle");
+					}
+				});
+			});
+
+			function forceBindClick() {
+				const container = document.getElementById("live2d-widget");
+				if (!container) {
+					console.warn("找不到live2d容器");
+					return;
+				}
+				container.style.cursor = "pointer";
+				container.onclick = () => handleTap();
+				const canvases = container.querySelectorAll("canvas");
+				canvases.forEach(canvas => {
+					canvas.onclick = (e) => {
+						e.stopPropagation();
+						handleTap();
+					};
+				});
+				console.log("✅ 强制绑定点击事件完成");
+			}
+
+			function handleTap() {
+				tapCount++;
+				clearTimeout(tapTimer);
+				tapTimer = setTimeout(() => tapCount = 0, 1500);
+				if (tapCount >= MAX_TAP_COUNT) {
+					triggerAngryTap();
+				} else {
+					triggerNormalTap();
+				}
+			}
+
+			function triggerNormalTap() {
+				setExpression("shy");
+				playMotion("tap");
+				addSystemMessage("唔？怎么啦？", "shy");
+			}
+
+			function triggerAngryTap() {
+				setExpression("angry");
+				playMotion("angry_tap");
+				addSystemMessage("别、别碰啦！很痒的！", "angry");
+				tapCount = 0;
+			}
+
+			function setExpression(expId) {
+				if (!live2dModel) return;
+				try {
+					live2dModel.expressionManager.setExpression(expId);
+				} catch (e) {
+					console.log("表情设置失败，使用参数模拟:", e);
+					switch (expId) {
+						case "happy":
+							live2dModel.model.setParamFloat("ParamEyeBallX", 0.3);
+							live2dModel.model.setParamFloat("ParamBrowLForm", -1);
+							live2dModel.model.setParamFloat("ParamBrowRForm", -1);
+							break;
+						case "angry":
+							live2dModel.model.setParamFloat("ParamBrowLForm", 1);
+							live2dModel.model.setParamFloat("ParamBrowRForm", 1);
+							live2dModel.model.setParamFloat("ParamEyeBallY", 0.2);
+							break;
+						case "shy":
+							live2dModel.model.setParamFloat("ParamEyeBallY", -0.3);
+							live2dModel.model.setParamFloat("ParamBrowLForm", -0.5);
+							live2dModel.model.setParamFloat("ParamBrowRForm", -0.5);
+							break;
+						default:
+							live2dModel.model.setParamFloat("ParamEyeBallX", 0);
+							live2dModel.model.setParamFloat("ParamBrowLForm", 0);
+							live2dModel.model.setParamFloat("ParamBrowRForm", 0);
+					}
+				}
+			}
+
+			function playMotion(motionId) {
+				if (!live2dModel) return;
+				try {
+					live2dModel.motionManager.startMotion(motionId);
+				} catch (e) {
+					console.log("动作播放失败:", e);
+				}
+			}
+
+			function addSystemMessage(text, emotion) {
+				const messageItem = document.createElement('div');
+				messageItem.className = `message-item ai-message system-${emotion}`;
+				const bubble = document.createElement('div');
+				bubble.className = 'message-bubble system-bubble';
+				bubble.style.background = emotion === "angry" ? "#ff6b6b" : "#ffb6c1";
+				bubble.textContent = text;
+				messageItem.appendChild(bubble);
+				chatBox.appendChild(messageItem);
+				chatBox.scrollTop = chatBox.scrollHeight;
+			}
+
+			// ========== 对话核心逻辑 ==========
+			const chatBox = document.getElementById('chat-box');
+			const chatInput = document.getElementById('chat-input');
+			const sendBtn = document.getElementById('send-btn');
+			const historyList = document.getElementById('history-list');
+			let isGenerating = false;
+			let currentSessionId = getCookie("waifu_session_id") || null;
+			let currentPersonalityId = null;
+
+			function getCookie(name) {
+				const value = `; ${document.cookie}`;
+				const parts = value.split(`; ${name}=`);
+				if (parts.length === 2) return parts.pop().split(';').shift();
+				return null;
+			}
+
+			function setCookie(name, value, days) {
+				document.cookie = `${name}=${value};path=/;max-age=${days*24*60*60}`;
+			}
+
+			function generateUUID() {
+				return 'waifu_' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+					var r = Math.random() * 16 | 0,
+						v = c == 'x' ? r : (r & 3 | 8);
+					return v.toString(16);
+				});
+			}
+
+			function cleanText(t) {
+				return t?.replace(/[\x00-\x1F\x7F]/g, '') || '';
+			}
+
+			const csrftoken = getCookie('csrftoken');
+
+			function showToast(message, type = 'success') {
+				const toast = document.createElement('div');
+				toast.textContent = message;
+				toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#4caf50' : '#f44336'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-size: 14px;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+				document.body.appendChild(toast);
+				setTimeout(() => {
+					toast.style.animation = 'fadeOutDown 0.3s ease';
+					setTimeout(() => toast.remove(), 300);
+				}, 3000);
+			}
+
+			function addMessage(text, isUser, index) {
+				const messageItem = document.createElement('div');
+				messageItem.className = `message-item ${isUser ? 'user-message' : 'ai-message'}`;
+				const bubble = document.createElement('div');
+				bubble.className = 'message-bubble';
+				bubble.textContent = cleanText(text);
+				messageItem.appendChild(bubble);
+				chatBox.appendChild(messageItem);
+				chatBox.scrollTop = chatBox.scrollHeight;
+			}
+
+			async function loadPersonalitySelector() {
+				try {
+					const response = await fetch('/waifu/personalities/');
+					const result = await response.json();
+					if (result.success && result.data) {
+						const selector = document.getElementById('personality-select');
+						selector.innerHTML = '<option value="">选择人设...</option>';
+						result.data.forEach(personality => {
+							const option = document.createElement('option');
+							option.value = personality.id;
+							option.textContent = `${personality.avatar_emoji || '💬'} ${personality.name}`;
+							if (personality.is_active) {
+								option.textContent += ' (当前)';
+								option.selected = true;
+								currentPersonalityId = personality.id;
+							}
+							selector.appendChild(option);
+						});
+					}
+				} catch (error) {
+					console.error('加载人设列表失败:', error);
+				}
+			}
+
+			async function switchPersonality(personalityId) {
+				try {
+					const response = await fetch(`/waifu/switch-personality/${currentSessionId}/`, {
+						method: 'POST',
+						headers: {
+							'X-CSRFToken': csrftoken,
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							personality_id: personalityId
+						})
+					});
+					const result = await response.json();
+					if (result.success) {
+						showToast(result.message, 'success');
+						currentPersonalityId = personalityId;
+					} else {
+						showToast(result.error || '切换失败', 'error');
+					}
+				} catch (error) {
+					console.error('切换人设失败:', error);
+					showToast('切换人设失败', 'error');
+				}
+			}
+
+			// 看板娘的 sendChatMessage 函数
+			async function sendChatMessage() {
+				const text = chatInput.value.trim();
+				if (!text || isGenerating) return;
+
+				const personalitySelect = document.getElementById('personality-select');
+				const personalityId = personalitySelect ? personalitySelect.value : '';
+
+				const modelSelect = document.getElementById('model-select');
+				const modelName = modelSelect ? modelSelect.value : 'qwen2:7b';
+
+				isGenerating = true;
+				sendBtn.disabled = true;
+				chatInput.value = '';
+				addMessage(text, true, -1);
+				setExpression("idle");
+
+				let url = `/waifu/api/?prompt=${encodeURIComponent(text)}&model=${encodeURIComponent(modelName)}`;
+				if (personalityId) {
+					url += `&personality_id=${personalityId}`;
+				}
+
+				const eventSource = new EventSource(url);
+				let fullReply = "";
+
+				eventSource.onmessage = function(e) {
+					const data = JSON.parse(e.data);
+					if (data.done) {
+						eventSource.close();
+						isGenerating = false;
+						sendBtn.disabled = false;
+						loadConversationList();
+						detectEmotionAndSetExpression(fullReply);
+						return;
+					}
+					if (data.content) {
+						fullReply += data.content;
+						const lastAiMsg = chatBox.querySelector('.ai-message:last-child');
+						if (lastAiMsg) {
+							lastAiMsg.querySelector('.message-bubble').textContent = cleanText(fullReply);
+						} else {
+							addMessage(fullReply, false, -1);
+						}
+						chatBox.scrollTop = chatBox.scrollHeight;
+					}
+				};
+
+				eventSource.onerror = function() {
+					eventSource.close();
+					addMessage("哎呀…我好像出了点小问题~", false, -1);
+					setExpression("sad");
+					isGenerating = false;
+					sendBtn.disabled = false;
+				};
+			}
+
+			async function deleteSingleMessage(index) {
+				if (!confirm("确定删除这条消息吗？")) return;
+				await fetch(`/waifu/message/${currentSessionId}/${index}/delete/`, {
+					method: "POST",
+					headers: {
+						"X-CSRFToken": csrftoken
+					}
+				});
+				switchConversation(currentSessionId);
+			}
+
+			async function loadConversationList() {
+				try {
+					const res = await fetch("/waifu/list/");
+					const list = await res.json();
+					historyList.innerHTML = "";
+					list.forEach(conv => {
+						const item = document.createElement("div");
+						item.className = "history-item";
+						if (conv.session_id === currentSessionId) item.classList.add("active");
+						const titleSpan = document.createElement("span");
+						titleSpan.textContent = conv.title;
+						item.appendChild(titleSpan);
+						const delBtn = document.createElement("div");
+						delBtn.className = "del-btn";
+						delBtn.textContent = "×";
+						delBtn.onclick = (e) => {
+							e.stopPropagation();
+							deleteConversation(conv.session_id);
+						};
+						item.appendChild(delBtn);
+						item.onclick = () => switchConversation(conv.session_id);
+						historyList.appendChild(item);
+					});
+				} catch (e) {
+					console.error(e)
+				}
+			}
+
+			async function switchConversation(sessionId) {
+				currentSessionId = sessionId;
+				setCookie("waifu_session_id", sessionId, 30);
+				const res = await fetch(`/waifu/load/${sessionId}/`);
+				const data = await res.json();
+				chatBox.innerHTML = "";
+				data.messages.forEach((msg, index) => addMessage(msg.content, msg.role === "user", index));
+				loadConversationList();
+			}
+
+			function newChat() {
+				currentSessionId = generateUUID();
+				setCookie("waifu_session_id", currentSessionId, 30);
+				chatBox.innerHTML =
+					`<div class="message-item ai-message"><div class="message-bubble">你好呀~我是Tia，快来和我聊天吧！</div></div>`;
+				loadConversationList();
+			}
+
+			async function deleteConversation(sessionId) {
+				if (!confirm("确定删除该对话吗？")) return;
+				await fetch(`/waifu/delete/${sessionId}/`, {
+					method: "POST",
+					headers: {
+						"X-CSRFToken": csrftoken
+					}
+				});
+				if (sessionId === currentSessionId) newChat();
+				else loadConversationList();
+			}
+
+			async function clearChat() {
+				if (!confirm("确定清空当前对话吗？")) return;
+				chatBox.innerHTML =
+					`<div class="message-item ai-message"><div class="message-bubble">你好呀~我是Tia，快来和我聊天吧！</div></div>`;
+				await fetch(`/waifu/clear/`, {
+					method: "POST",
+					headers: {
+						"X-CSRFToken": csrftoken
+					}
+				});
+			}
+
+			// ========== 右键菜单 ==========
+			let waifuRightMenu = null;
+
+			function createWaifuRightMenu() {
+				if (waifuRightMenu) return;
+				waifuRightMenu = document.createElement("div");
+				waifuRightMenu.style.cssText = `
+            position: fixed; z-index: 9999; width: 120px;
+            background: #2d2d44; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            overflow: hidden; display: none; color: #fff;
+        `;
+				const copy = document.createElement("div");
+				copy.textContent = "复制";
+				copy.style.cssText = "padding: 8px 12px; cursor: pointer; font-size: 14px;";
+				copy.onmouseover = () => copy.style.background = "#4a6cf3";
+				const del = document.createElement("div");
+				del.textContent = "删除";
+				del.style.cssText = "padding: 8px 12px; cursor: pointer; font-size: 14px; color: #ff4444;";
+				del.onmouseover = () => del.style.background = "#443355";
+				waifuRightMenu.appendChild(copy);
+				waifuRightMenu.appendChild(del);
+				document.body.appendChild(waifuRightMenu);
+			}
+
+			function bindAllWaifuMessageRightClick() {
+				createWaifuRightMenu();
+				document.querySelectorAll(".message-item").forEach((el, index) => {
+					el.oncontextmenu = function(e) {
+						e.preventDefault();
+						waifuRightMenu.style.left = e.clientX + "px";
+						waifuRightMenu.style.top = e.clientY + "px";
+						waifuRightMenu.style.display = "block";
+						waifuRightMenu.children[0].onclick = () => {
+							const txt = el.querySelector(".message-bubble").textContent.trim();
+							navigator.clipboard.writeText(txt);
+							waifuRightMenu.style.display = "none";
+						};
+						waifuRightMenu.children[1].onclick = () => {
+							deleteSingleMessage(index);
+							waifuRightMenu.style.display = "none";
+						};
+					};
+				});
+				document.onclick = () => waifuRightMenu && (waifuRightMenu.style.display = "none");
+			}
+
+			// ========== 情绪识别 ==========
+			function detectEmotionAndSetExpression(text) {
+				const happyKeywords = ["哈哈", "开心", "太棒了", "嘻嘻", "喜欢", "快乐", "高兴"];
+				const sadKeywords = ["难过", "伤心", "对不起", "呜呜", "抱歉", "失落"];
+				const angryKeywords = ["别碰", "讨厌", "哼", "不要", "烦人", "走开", "生气"];
+				const shyKeywords = ["害羞", "脸红", "唔", "讨厌啦", "人家", "不好意思"];
+
+				if (angryKeywords.some(k => text.includes(k))) {
+					setExpression("angry");
+				} else if (sadKeywords.some(k => text.includes(k))) {
+					setExpression("sad");
+				} else if (shyKeywords.some(k => text.includes(k))) {
+					setExpression("shy");
+				} else if (happyKeywords.some(k => text.includes(k))) {
+					setExpression("happy");
+				} else {
+					setExpression("idle");
+				}
+			}
+
+			// ========== 事件绑定 ==========
+			sendBtn.addEventListener('click', sendChatMessage);
+			chatInput.addEventListener('keydown', (e) => e.key === 'Enter' && sendChatMessage());
+
+			document.getElementById('personality-select')?.addEventListener('change', async function(e) {
+				const personalityId = e.target.value;
+				if (personalityId && currentSessionId) {
+					await switchPersonality(personalityId);
+				}
+			});
+
+			// 统一的 window.onload
+			window.onload = function() {
+				if (!currentSessionId || !currentSessionId.startsWith('waifu_')) {
+					newChat();
+				} else {
+					switchConversation(currentSessionId);
+				}
+				loadPersonalitySelector();
+				setTimeout(bindAllWaifuMessageRightClick, 300);
+			};
+
+			// 覆盖 addMessage 以绑定右键
+			const originalAddMessage = addMessage;
+			window.addMessage = function(text, isUser, index) {
+				originalAddMessage(text, isUser, index);
+				bindAllWaifuMessageRightClick();
+			};
+
+			// 覆盖 switchConversation
+			const originalSwitchConv = switchConversation;
+			window.switchConversation = async function(sid) {
+				await originalSwitchConv(sid);
+				bindAllWaifuMessageRightClick();
+			};
+		</script>
+	</body>
+</html>

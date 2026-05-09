@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.env
+venv/
+env/
+
+# Django
+db.sqlite3
+*.log
+*.pot
+*.pyc
+local_settings.py
+/staticfiles/
+
+# 数据库
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# 打包文件
+dist/
+build/
+*.spec
+
+# 系统文件
+.DS_Store
+Thumbs.db

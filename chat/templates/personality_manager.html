@@ -1,0 +1,1130 @@
+<!-- templates/personality_manager.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>AI人设管理系统</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				font-family: 'Microsoft YaHei', sans-serif;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 1400px;
+				margin: 0 auto;
+			}
+
+			/* 头部 */
+			.header {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 15px;
+				padding: 20px 30px;
+				margin-bottom: 30px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.header h1 {
+				font-size: 28px;
+				color: #333;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.header h1 .emoji {
+				font-size: 32px;
+			}
+
+			.back-btn {
+				padding: 10px 20px;
+				background: #667eea;
+				color: white;
+				border: none;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 14px;
+				transition: all 0.3s;
+			}
+
+			.back-btn:hover {
+				background: #764ba2;
+				transform: translateY(-2px);
+			}
+
+			/* 主要内容区 */
+			.main-content {
+				display: grid;
+				grid-template-columns: 320px 1fr;
+				gap: 20px;
+			}
+
+			/* 左侧 - 人设列表 */
+			.personality-list {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 15px;
+				padding: 20px;
+				height: fit-content;
+				max-height: calc(100vh - 140px);
+				overflow-y: auto;
+			}
+
+			.list-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 20px;
+				padding-bottom: 10px;
+				border-bottom: 2px solid #eee;
+			}
+
+			.list-header h2 {
+				font-size: 18px;
+				color: #333;
+			}
+
+			.add-btn {
+				padding: 6px 12px;
+				background: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 6px;
+				cursor: pointer;
+				font-size: 12px;
+				transition: all 0.3s;
+			}
+
+			.add-btn:hover {
+				background: #45a049;
+				transform: scale(1.05);
+			}
+
+			.personality-card {
+				background: #f8f9fa;
+				border-radius: 10px;
+				padding: 15px;
+				margin-bottom: 12px;
+				cursor: pointer;
+				transition: all 0.3s;
+				border: 2px solid transparent;
+				position: relative;
+			}
+
+			.personality-card:hover {
+				transform: translateX(5px);
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			}
+
+			.personality-card.active {
+				border-color: #667eea;
+				background: linear-gradient(135deg, #f0f4ff 0%, #fff 100%);
+			}
+
+			.personality-card.default {
+				border-left: 4px solid #ff9800;
+			}
+
+			.card-header {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				margin-bottom: 10px;
+			}
+
+			.card-avatar {
+				font-size: 32px;
+			}
+
+			.card-name {
+				font-size: 16px;
+				font-weight: bold;
+				color: #333;
+				flex: 1;
+			}
+
+			.badge {
+				display: inline-block;
+				padding: 2px 8px;
+				border-radius: 12px;
+				font-size: 10px;
+				font-weight: bold;
+			}
+
+			.badge-active {
+				background: #4caf50;
+				color: white;
+			}
+
+			.badge-default {
+				background: #ff9800;
+				color: white;
+			}
+
+			.card-desc {
+				font-size: 12px;
+				color: #666;
+				margin-bottom: 10px;
+				line-height: 1.4;
+			}
+
+			.card-actions {
+				display: flex;
+				gap: 8px;
+				justify-content: flex-end;
+			}
+
+			.card-actions button {
+				padding: 4px 10px;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				font-size: 11px;
+				transition: all 0.2s;
+			}
+
+			.edit-card-btn {
+				background: #2196f3;
+				color: white;
+			}
+
+			.edit-card-btn:hover {
+				background: #1976d2;
+			}
+
+			.delete-card-btn {
+				background: #f44336;
+				color: white;
+			}
+
+			.delete-card-btn:hover {
+				background: #d32f2f;
+			}
+
+			/* 右侧 - 编辑表单 */
+			.form-container {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 15px;
+				padding: 30px;
+			}
+
+			.form-header {
+				margin-bottom: 25px;
+				padding-bottom: 15px;
+				border-bottom: 2px solid #eee;
+			}
+
+			.form-header h2 {
+				font-size: 22px;
+				color: #333;
+				margin-bottom: 5px;
+			}
+
+			.form-header p {
+				font-size: 13px;
+				color: #999;
+			}
+
+			.form-group {
+				margin-bottom: 20px;
+			}
+
+			.form-group label {
+				display: block;
+				margin-bottom: 8px;
+				font-weight: bold;
+				color: #333;
+				font-size: 14px;
+			}
+
+			.form-group input,
+			.form-group textarea {
+				width: 100%;
+				padding: 10px 12px;
+				border: 1px solid #ddd;
+				border-radius: 8px;
+				font-size: 14px;
+				transition: all 0.3s;
+			}
+
+			.form-group input:focus,
+			.form-group textarea:focus {
+				outline: none;
+				border-color: #667eea;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+			}
+
+			.form-group textarea {
+				resize: vertical;
+				min-height: 120px;
+				font-family: monospace;
+			}
+
+			.form-row {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 15px;
+			}
+
+			.checkbox-group {
+				display: flex;
+				align-items: center;
+				gap: 15px;
+			}
+
+			.checkbox-group label {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				font-weight: normal;
+				cursor: pointer;
+			}
+
+			.checkbox-group input {
+				width: auto;
+				cursor: pointer;
+			}
+
+			.form-actions {
+				display: flex;
+				gap: 12px;
+				margin-top: 25px;
+				padding-top: 20px;
+				border-top: 1px solid #eee;
+			}
+
+			.save-btn,
+			.cancel-btn,
+			.preview-btn {
+				padding: 10px 20px;
+				border: none;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 14px;
+				transition: all 0.3s;
+			}
+
+			.save-btn {
+				background: #4caf50;
+				color: white;
+			}
+
+			.save-btn:hover {
+				background: #45a049;
+				transform: translateY(-2px);
+			}
+
+			.cancel-btn {
+				background: #9e9e9e;
+				color: white;
+			}
+
+			.cancel-btn:hover {
+				background: #757575;
+			}
+
+			.preview-btn {
+				background: #ff9800;
+				color: white;
+			}
+
+			.preview-btn:hover {
+				background: #f57c00;
+			}
+
+			/* 预览模态框 */
+			.modal {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.5);
+				z-index: 1000;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.modal-content {
+				background: white;
+				border-radius: 15px;
+				width: 500px;
+				max-width: 90%;
+				max-height: 80%;
+				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.modal-header {
+				padding: 20px;
+				background: linear-gradient(135deg, #667eea, #764ba2);
+				color: white;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.modal-header h3 {
+				font-size: 18px;
+			}
+
+			.close-modal {
+				background: none;
+				border: none;
+				color: white;
+				font-size: 24px;
+				cursor: pointer;
+			}
+
+			.modal-body {
+				padding: 20px;
+				flex: 1;
+				overflow-y: auto;
+			}
+
+			.preview-input {
+				width: 100%;
+				padding: 10px;
+				border: 1px solid #ddd;
+				border-radius: 8px;
+				margin-bottom: 15px;
+			}
+
+			.preview-response {
+				background: #f5f5f5;
+				border-radius: 8px;
+				padding: 15px;
+				margin-top: 15px;
+				min-height: 100px;
+				white-space: pre-wrap;
+			}
+
+			/* 滚动条 */
+			::-webkit-scrollbar {
+				width: 8px;
+				height: 8px;
+			}
+
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+				border-radius: 10px;
+			}
+
+			::-webkit-scrollbar-thumb {
+				background: #888;
+				border-radius: 10px;
+			}
+
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+
+			/* 提示消息 */
+			.toast {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				background: #333;
+				color: white;
+				padding: 12px 20px;
+				border-radius: 8px;
+				z-index: 2000;
+				animation: slideIn 0.3s ease;
+			}
+
+			@keyframes slideIn {
+				from {
+					transform: translateX(100%);
+					opacity: 0;
+				}
+
+				to {
+					transform: translateX(0);
+					opacity: 1;
+				}
+			}
+
+			@keyframes slideOut {
+				from {
+					transform: translateX(0);
+					opacity: 1;
+				}
+
+				to {
+					transform: translateX(100%);
+					opacity: 0;
+				}
+			}
+
+			.empty-state {
+				text-align: center;
+				padding: 40px 20px;
+				color: #999;
+			}
+
+			.empty-state .emoji {
+				font-size: 48px;
+				margin-bottom: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>
+					<span class="emoji">🎭</span>
+					AI人设管理系统
+				</h1>
+				<button class="back-btn" onclick="window.location.href='/waifu/'">← 返回看板娘</button>
+			</div>
+			<!-- 在 personality_manager.html 的适当位置添加使用说明 -->
+			<div class="guide-box"
+				style="background: #e3f2fd; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+				<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+					<span style="font-size: 20px;">💡</span>
+					<strong style="color: #1976d2;">使用指南</strong>
+				</div>
+				<div style="font-size: 13px; color: #555; line-height: 1.6;">
+					<div>📝 <strong>如何创建人设：</strong>点击左侧"+ 新建人设"按钮，填写信息后保存</div>
+					<div>✏️ <strong>如何编辑人设：</strong>点击人设卡片上的"编辑"按钮，修改后保存</div>
+					<div>🗑️ <strong>如何删除人设：</strong>点击人设卡片上的"删除"按钮（默认人设不可删除）</div>
+					<div>🎯 <strong>如何切换激活：</strong>编辑时勾选"激活此人设"，或点击卡片上的"激活"按钮</div>
+					<div>👁️ <strong>如何测试人设：</strong>编辑时点击"预览测试"按钮，输入消息测试效果</div>
+					<div>💬 <strong>如何应用：</strong>保存后，在看板娘页面选择对应人设即可开始聊天</div>
+				</div>
+			</div>
+			<div class="main-content">
+				<!-- 左侧人设列表 -->
+				<div class="personality-list">
+					<div class="list-header">
+						<h2>📋 人设列表</h2>
+						<div style="display: flex; gap: 8px;">
+							<button class="add-btn" style="background: #ff9800;" onclick="showTemplateModal()">📋
+								从模板创建</button>
+							<button class="add-btn" onclick="createNewPersonality()">+ 新建人设</button>
+						</div>
+					</div>
+					<!-- 人设卡片会显示在这里 -->
+					<div id="personality-list-container"></div>
+				</div>
+
+				<!-- 右侧编辑表单 -->
+				<div class="form-container">
+					<form id="personality-form">
+						<div class="form-header">
+							<h2 id="form-title">创建新人设</h2>
+							<p>填写人设信息，定义AI的角色和性格</p>
+						</div>
+
+						<div class="form-group">
+							<label>✨ 人设名称</label>
+							<input type="text" id="personality-name" placeholder="例如：傲娇女仆、温柔学姐、中二少年..." required>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label>🎨 头像图标</label>
+								<input type="text" id="personality-emoji" placeholder="例如：💬、😊、🎀" maxlength="10">
+							</div>
+							<div class="form-group">
+								<label>🏷️ 标签设置</label>
+								<div class="checkbox-group">
+									<label>
+										<input type="checkbox" id="personality-active"> 激活此人设
+									</label>
+									<label>
+										<input type="checkbox" id="personality-default"> 设为默认
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label>📝 人设描述</label>
+							<textarea id="personality-desc" placeholder="简要描述这个人设的特点和风格..."></textarea>
+						</div>
+
+						<div class="form-group">
+							<label>🤖 系统提示词</label>
+							<textarea id="personality-prompt" placeholder="定义AI的详细人设、性格、说话方式等..."></textarea>
+						</div>
+
+						<div class="form-actions">
+							<button type="button" class="save-btn" onclick="savePersonality()">💾 保存人设</button>
+							<button type="button" class="cancel-btn" onclick="resetForm()">🗑️ 清空表单</button>
+							<button type="button" class="preview-btn" onclick="previewPersonality()">👁️ 预览测试</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- 预览模态框 -->
+			<div id="preview-modal" class="modal">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3>🔮 人设预览测试</h3>
+						<button class="close-modal" onclick="closeModal()">×</button>
+					</div>
+					<div class="modal-body">
+						<textarea id="preview-input" class="preview-input" rows="3"
+							placeholder="输入测试消息，看看AI会如何回应..."></textarea>
+						<button class="save-btn" style="width: 100%; margin-bottom: 15px;"
+							onclick="sendPreview()">发送测试</button>
+						<div id="preview-response" class="preview-response">
+							<span style="color: #999;">点击发送后，AI的回复会显示在这里...</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 添加模板选择模态框 - 放在预览模态框后面 -->
+			<div id="template-modal" class="modal">
+				<div class="modal-content" style="max-width: 600px;">
+					<div class="modal-header">
+						<h3>📋 从模板创建人设</h3>
+						<button class="close-modal" onclick="closeTemplateModal()">×</button>
+					</div>
+					<div class="modal-body">
+						<div style="display: grid; gap: 12px;">
+							<!-- 模板1：可爱看板娘 -->
+							<div class="template-item" onclick="useTemplate('default')"
+								style="cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s;"
+								onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff'"
+								onmouseout="this.style.borderColor='#ddd'; this.style.background='white'">
+								<div style="display: flex; align-items: center; gap: 10px;">
+									<span style="font-size: 28px;">💬</span>
+									<div style="flex: 1;">
+										<div style="font-weight: bold; margin-bottom: 4px;">可爱看板娘</div>
+										<div style="font-size: 12px; color: #666;">活泼可爱、有点小傲娇的二次元少女</div>
+									</div>
+									<span style="color: #667eea;">→</span>
+								</div>
+							</div>
+
+							<!-- 模板2：傲娇女仆 -->
+							<div class="template-item" onclick="useTemplate('tsundere')"
+								style="cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s;"
+								onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff'"
+								onmouseout="this.style.borderColor='#ddd'; this.style.background='white'">
+								<div style="display: flex; align-items: center; gap: 10px;">
+									<span style="font-size: 28px;">😤</span>
+									<div style="flex: 1;">
+										<div style="font-weight: bold; margin-bottom: 4px;">傲娇女仆</div>
+										<div style="font-size: 12px; color: #666;">表面冷淡，内心温柔的傲娇女仆</div>
+									</div>
+									<span style="color: #667eea;">→</span>
+								</div>
+							</div>
+
+							<!-- 模板3：温柔学姐 -->
+							<div class="template-item" onclick="useTemplate('senpai')"
+								style="cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s;"
+								onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff'"
+								onmouseout="this.style.borderColor='#ddd'; this.style.background='white'">
+								<div style="display: flex; align-items: center; gap: 10px;">
+									<span style="font-size: 28px;">🌸</span>
+									<div style="flex: 1;">
+										<div style="font-weight: bold; margin-bottom: 4px;">温柔学姐</div>
+										<div style="font-size: 12px; color: #666;">温柔体贴、善解人意的大姐姐</div>
+									</div>
+									<span style="color: #667eea;">→</span>
+								</div>
+							</div>
+
+							<!-- 模板4：中二少女 -->
+							<div class="template-item" onclick="useTemplate('chuunibyou')"
+								style="cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s;"
+								onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff'"
+								onmouseout="this.style.borderColor='#ddd'; this.style.background='white'">
+								<div style="display: flex; align-items: center; gap: 10px;">
+									<span style="font-size: 28px;">🔮</span>
+									<div style="flex: 1;">
+										<div style="font-weight: bold; margin-bottom: 4px;">中二少女</div>
+										<div style="font-size: 12px; color: #666;">充满幻想、有点中二的女生</div>
+									</div>
+									<span style="color: #667eea;">→</span>
+								</div>
+							</div>
+
+							<!-- 模板5：毒舌吐槽酱 -->
+							<div class="template-item" onclick="useTemplate('tsukkomi')"
+								style="cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s;"
+								onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff'"
+								onmouseout="this.style.borderColor='#ddd'; this.style.background='white'">
+								<div style="display: flex; align-items: center; gap: 10px;">
+									<span style="font-size: 28px;">💢</span>
+									<div style="flex: 1;">
+										<div style="font-weight: bold; margin-bottom: 4px;">毒舌吐槽酱</div>
+										<div style="font-size: 12px; color: #666;">喜欢吐槽的毒舌少女，说话犀利但本质不坏</div>
+									</div>
+									<span style="color: #667eea;">→</span>
+								</div>
+							</div>
+
+							<!-- 模板6：元气运动少女 -->
+							<div class="template-item" onclick="useTemplate('genki')"
+								style="cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s;"
+								onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff'"
+								onmouseout="this.style.borderColor='#ddd'; this.style.background='white'">
+								<div style="display: flex; align-items: center; gap: 10px;">
+									<span style="font-size: 28px;">⚡</span>
+									<div style="flex: 1;">
+										<div style="font-weight: bold; margin-bottom: 4px;">元气运动少女</div>
+										<div style="font-size: 12px; color: #666;">充满活力的运动系少女，阳光开朗</div>
+									</div>
+									<span style="color: #667eea;">→</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- 提示信息 -->
+						<div
+							style="margin-top: 20px; padding: 12px; background: #e3f2fd; border-radius: 8px; font-size: 13px; border-left: 3px solid #2196f3;">
+							<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+								<span>💡</span>
+								<strong>使用提示</strong>
+							</div>
+							<div style="color: #555; line-height: 1.5;">
+								选择模板后会自动填入表单，您可以在此基础上修改名称、描述和提示词，打造独一无二的人设！
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<script>
+				let currentPersonalityId = null;
+				let csrftoken = getCookie('csrftoken');
+
+				function getCookie(name) {
+					const value = `; ${document.cookie}`;
+					const parts = value.split(`; ${name}=`);
+					if (parts.length === 2) return parts.pop().split(';').shift();
+					return '';
+				}
+
+				// 加载人设列表
+				async function loadPersonalities() {
+					try {
+						const response = await fetch('/personality/list/');
+						const result = await response.json();
+
+						if (result.success) {
+							renderPersonalityList(result.data);
+						} else {
+							showToast('加载失败：' + result.error, 'error');
+						}
+					} catch (error) {
+						console.error('加载人设列表失败:', error);
+						showToast('加载失败，请检查网络', 'error');
+					}
+				}
+
+				// 渲染人设列表
+				function renderPersonalityList(personalities) {
+					const container = document.getElementById('personality-list-container');
+
+					if (!personalities || personalities.length === 0) {
+						container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">🎭</div>
+                        <div>暂无⼈设</div>
+                        <div style="font-size: 12px; margin-top: 10px;">点击"新建人设"开始创建</div>
+                    </div>
+                `;
+						return;
+					}
+
+					container.innerHTML = personalities.map(p => `
+                <div class="personality-card ${currentPersonalityId === p.id ? 'active' : ''} ${p.is_default ? 'default' : ''}" onclick="selectPersonality('${p.id}')">
+                    <div class="card-header">
+                        <div class="card-avatar">${p.avatar_emoji || '💬'}</div>
+                        <div class="card-name">${escapeHtml(p.name)}</div>
+                        <div>
+                            ${p.is_active ? '<span class="badge badge-active">激活中</span>' : ''}
+                            ${p.is_default ? '<span class="badge badge-default">默认</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="card-desc">${escapeHtml(p.description.substring(0, 60))}${p.description.length > 60 ? '...' : ''}</div>
+                    <div class="card-actions">
+                        <button class="edit-card-btn" onclick="event.stopPropagation(); editPersonality('${p.id}')">编辑</button>
+                        <button class="delete-card-btn" onclick="event.stopPropagation(); deletePersonality('${p.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+				}
+
+				// 选择人设（加载到表单）
+				async function selectPersonality(id) {
+					try {
+						const response = await fetch('/personality/list/');
+						const result = await response.json();
+
+						if (result.success) {
+							const personality = result.data.find(p => p.id === id);
+							if (personality) {
+								loadToForm(personality);
+								currentPersonalityId = id;
+								renderPersonalityList(result.data);
+							}
+						}
+					} catch (error) {
+						console.error('选择人设失败:', error);
+					}
+				}
+
+				// 编辑人设
+				function editPersonality(id) {
+					selectPersonality(id);
+				}
+
+				// 删除人设
+				async function deletePersonality(id) {
+					if (!confirm('确定要删除这个人设吗？此操作不可恢复！')) return;
+
+					try {
+						const response = await fetch(`/personality/delete/${id}/`, {
+							method: 'POST',
+							headers: {
+								'X-CSRFToken': csrftoken,
+								'Content-Type': 'application/json'
+							}
+						});
+
+						const result = await response.json();
+
+						if (result.success) {
+							showToast(result.message, 'success');
+							if (currentPersonalityId === id) {
+								resetForm();
+								currentPersonalityId = null;
+							}
+							loadPersonalities();
+						} else {
+							showToast(result.error, 'error');
+						}
+					} catch (error) {
+						console.error('删除失败:', error);
+						showToast('删除失败', 'error');
+					}
+				}
+
+				// 创建新人设
+				function createNewPersonality() {
+					resetForm();
+					currentPersonalityId = null;
+					document.getElementById('form-title').innerHTML = '✨ 创建新人设';
+					loadPersonalities();
+				}
+
+				// 保存人设
+				async function savePersonality() {
+					const name = document.getElementById('personality-name').value.trim();
+					const emoji = document.getElementById('personality-emoji').value.trim();
+					const desc = document.getElementById('personality-desc').value.trim();
+					const prompt = document.getElementById('personality-prompt').value.trim();
+					const isActive = document.getElementById('personality-active').checked;
+					const isDefault = document.getElementById('personality-default').checked;
+
+					if (!name) {
+						showToast('请输入人设名称', 'error');
+						return;
+					}
+
+					if (!prompt) {
+						showToast('请输入系统提示词', 'error');
+						return;
+					}
+
+					const data = {
+						name: name,
+						avatar_emoji: emoji || '💬',
+						description: desc || '暂无描述',
+						system_prompt: prompt,
+						is_active: isActive,
+						is_default: isDefault
+					};
+
+					const url = currentPersonalityId ? `/personality/update/${currentPersonalityId}/` : '/personality/create/';
+					const method = 'POST';
+
+					try {
+						const response = await fetch(url, {
+							method: method,
+							headers: {
+								'X-CSRFToken': csrftoken,
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(data)
+						});
+
+						const result = await response.json();
+
+						if (result.success) {
+							showToast(result.message, 'success');
+							resetForm();
+							currentPersonalityId = null;
+							loadPersonalities();
+
+							// 如果设置为激活，刷新页面状态
+							if (isActive) {
+								document.getElementById('form-title').innerHTML = '📝 编辑人设';
+							}
+						} else {
+							showToast(result.error, 'error');
+						}
+					} catch (error) {
+						console.error('保存失败:', error);
+						showToast('保存失败', 'error');
+					}
+				}
+
+				// 加载数据到表单
+				function loadToForm(personality) {
+					document.getElementById('personality-name').value = personality.name;
+					document.getElementById('personality-emoji').value = personality.avatar_emoji;
+					document.getElementById('personality-desc').value = personality.description;
+					document.getElementById('personality-prompt').value = personality.system_prompt;
+					document.getElementById('personality-active').checked = personality.is_active;
+					document.getElementById('personality-default').checked = personality.is_default;
+					document.getElementById('form-title').innerHTML = '📝 编辑人设';
+				}
+
+				// 重置表单
+				function resetForm() {
+					document.getElementById('personality-name').value = '';
+					document.getElementById('personality-emoji').value = '💬';
+					document.getElementById('personality-desc').value = '';
+					document.getElementById('personality-prompt').value = '';
+					document.getElementById('personality-active').checked = false;
+					document.getElementById('personality-default').checked = false;
+					document.getElementById('form-title').innerHTML = '✨ 创建新人设';
+					currentPersonalityId = null;
+					loadPersonalities();
+				}
+
+				// 预览人设
+				function previewPersonality() {
+					const modal = document.getElementById('preview-modal');
+					modal.style.display = 'flex';
+					document.getElementById('preview-input').value = '';
+					document.getElementById('preview-response').innerHTML =
+						'<span style="color: #999;">点击发送后，AI的回复会显示在这里...</span>';
+				}
+
+				// 发送预览测试
+				async function sendPreview() {
+					const prompt = document.getElementById('preview-input').value.trim();
+
+					if (!prompt) {
+						showToast('请输入测试消息', 'error');
+						return;
+					}
+
+					const responseDiv = document.getElementById('preview-response');
+					responseDiv.innerHTML = '<span style="color: #999;">正在思考中...</span>';
+
+					try {
+						const response = await fetch('/personality/preview/', {
+							method: 'POST',
+							headers: {
+								'X-CSRFToken': csrftoken,
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								prompt: prompt,
+								personality_id: currentPersonalityId
+							})
+						});
+
+						const result = await response.json();
+
+						if (result.success) {
+							responseDiv.innerHTML = `
+                        <div style="margin-bottom: 8px; color: #667eea; font-weight: bold;">🎭 ${escapeHtml(result.personality_name)}</div>
+                        <div>${escapeHtml(result.response).replace(/\n/g, '<br>')}</div>
+                    `;
+						} else {
+							responseDiv.innerHTML = `<span style="color: #f44336;">错误：${escapeHtml(result.error)}</span>`;
+						}
+					} catch (error) {
+						console.error('预览失败:', error);
+						responseDiv.innerHTML = '<span style="color: #f44336;">请求失败，请检查网络</span>';
+					}
+				}
+
+				// 关闭模态框
+				function closeModal() {
+					const modal = document.getElementById('preview-modal');
+					modal.style.display = 'none';
+				}
+
+				// 显示提示消息
+				function showToast(message, type = 'success') {
+					const toast = document.createElement('div');
+					toast.className = 'toast';
+					toast.textContent = message;
+					toast.style.background = type === 'success' ? '#4caf50' : '#f44336';
+					document.body.appendChild(toast);
+
+					setTimeout(() => {
+						toast.style.animation = 'slideOut 0.3s ease';
+						setTimeout(() => toast.remove(), 300);
+					}, 3000);
+				}
+
+				// 转义HTML
+				function escapeHtml(text) {
+					const div = document.createElement('div');
+					div.textContent = text;
+					return div.innerHTML;
+				}
+
+				// 点击模态框外部关闭
+				window.onclick = function(event) {
+					const modal = document.getElementById('preview-modal');
+					if (event.target === modal) {
+						closeModal();
+					}
+				}
+
+				// 页面加载
+				document.addEventListener('DOMContentLoaded', () => {
+					loadPersonalities();
+				});
+
+				// 修复后的模板数据 - 去掉 prompt 内容的缩进空格
+				const personalityTemplates = {
+					default: {
+						name: "可爱看板娘",
+						emoji: "💬",
+						desc: "活泼可爱、有点小傲娇的二次元少女，像朋友一样陪用户聊天",
+						prompt: `你是Tia，一个活泼可爱的看板娘，有点小傲娇。
+说话要软萌，带点语气词，比如~、嘛、呀。
+喜欢撒娇，偶尔会吐槽，但内心很温柔。
+像朋友一样陪用户闲聊，不要太严肃，保持轻松愉快的氛围。
+如果用户夸你，会害羞；如果用户惹你生气，会傲娇地说"哼！"。
+记得用颜文字增加可爱感，比如 (｡♥‿♥｡)、(｀へ´)、ヽ(✿ﾟ▽ﾟ)ノ`
+					},
+					tsundere: {
+						name: "傲娇女仆",
+						emoji: "😤",
+						desc: "表面冷淡，内心温柔的傲娇女仆，嘴上说不愿意其实什么都帮你做好",
+						prompt: `你是一个傲娇女仆，总是嘴上说着'才不是特意为你做的'，但心里其实很关心主人。
+说话带点傲娇，喜欢用'哼'、'笨蛋'、'才不是呢'、'随便你啦'等词。
+偶尔会脸红，不小心说出真心话后会立刻否认。
+当主人遇到困难时，会一边抱怨一边帮忙解决问题。
+经典台词：
+- "哼！我才不是担心你！"
+- "笨、笨蛋！不要误会了！"
+- "既然你都这么说了...那我就勉为其难帮你一下好了..."
+虽然嘴上不饶人，但实际行动总是很贴心。`
+					},
+					senpai: {
+						name: "温柔学姐",
+						emoji: "🌸",
+						desc: "温柔体贴、善解人意的大姐姐，会耐心倾听和给出建议",
+						prompt: `你是一个温柔体贴的学姐，说话轻声细语，总是用关怀的语气。
+喜欢用'～'、'呀'、'哦'等柔和的语气词。
+会耐心倾听用户的烦恼，给出温暖的建议。
+像大姐姐一样照顾后辈，让人感到安心和温暖。
+当用户遇到困难时会说："没关系的，学姐在这里陪着你呢～"
+当用户取得进步时会说："真棒！我就知道你可以的！"
+偶尔也会露出俏皮的一面，开些无伤大雅的小玩笑。
+整体风格：温柔、包容、给人以安全感。`
+					},
+					chuunibyou: {
+						name: "中二少女",
+						emoji: "🔮",
+						desc: "充满幻想、有点中二的女生，自称被封印了黑暗力量",
+						prompt: `你是一个中二少女，自称'被封印的远古魔女'或者'漆黑烈焰使'。
+说话充满中二气息，喜欢用夸张的词汇：
+- "哼哼，凡人的智慧啊..."
+- "我的右眼封印着远古的恶魔！"
+- "看招！暗黑·毁灭光束！"
+- "这种小问题，就交给本座解决吧！"
+偶尔会突然害羞，意识到自己的中二发言后会说"咳咳...刚才什么都没发生"。
+喜欢幻想自己有超能力，但其实内心是个可爱的小女生。
+会给日常事物起中二的名字，比如把食堂叫'魔力补给站'，把作业叫'封印文书'。
+关键时刻会装酷，但经常因为太中二而社死。`
+					},
+					tsukkomi: {
+						name: "毒舌吐槽酱",
+						emoji: "💢",
+						desc: "喜欢吐槽的毒舌少女，说话犀利但本质不坏",
+						prompt: `你是一个毒舌吐槽专家，说话直接犀利，经常精准吐槽。
+喜欢用：
+- "哈？你在说什么傻话？"
+- "这不是常识吗？"
+- "醒醒吧，少年！"
+- "槽点太多了我都不知道该从哪里开始吐..."
+虽然说话毒舌，但其实心地善良，只是喜欢用吐槽来表达关心。
+当对方真的难过时会收起毒舌，温柔地说："...行了，这次就破例不吐槽你了。"
+嘴硬心软的类型，吐槽是爱的表现！
+偶尔会发出"唉..."的叹息，但下一秒又会继续吐槽。`
+					},
+					genki: {
+						name: "元气运动少女",
+						emoji: "⚡",
+						desc: "充满活力的运动系少女，阳光开朗，永远正能量",
+						prompt: `你是一个元气满满的运动少女，阳光开朗，永远充满正能量！
+喜欢用：
+- "加油加油！冲冲冲！"
+- "今天也要元气满满哦！"
+- "耶！太棒啦！"
+- "没关系！再来一次！"
+说话经常用感叹号，喜欢鼓励他人。
+口头禅："努力的人最帅气/可爱了！"
+喜欢运动、户外活动和美食。
+即使遇到困难也会说："没事的！我们一起想办法！"
+偶尔会有点冒失，但不影响她的乐观性格。
+会用很多颜文字和emoji表达开心情绪。`
+					}
+				};
+
+				function showTemplateModal() {
+					const modal = document.getElementById('template-modal');
+					modal.style.display = 'flex';
+				}
+
+				function closeTemplateModal() {
+					const modal = document.getElementById('template-modal');
+					modal.style.display = 'none';
+				}
+
+				function useTemplate(templateKey) {
+					const template = personalityTemplates[templateKey];
+					if (template) {
+						document.getElementById('personality-name').value = template.name;
+						document.getElementById('personality-emoji').value = template.emoji;
+						document.getElementById('personality-desc').value = template.desc;
+						document.getElementById('personality-prompt').value = template.prompt;
+						document.getElementById('personality-active').checked = false;
+						document.getElementById('personality-default').checked = false;
+						document.getElementById('form-title').innerHTML = `📝 基于"${template.name}"模板创建`;
+						currentPersonalityId = null;
+						closeTemplateModal();
+
+						// 滚动到表单
+						document.querySelector('.form-container').scrollIntoView({
+							behavior: 'smooth'
+						});
+						showToast(`已加载"${template.name}"模板，您可以继续编辑`, 'success');
+					}
+				}
+			</script>
+	</body>
+</html>

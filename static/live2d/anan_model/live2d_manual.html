@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Live2D 手动渲染</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a2e; }
+        canvas { position: fixed; right: 0; bottom: 0; width: 500px; height: 600px; border: 1px solid #444; background: #000; }
+        #log {
+            position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8);
+            color: #0f0; padding: 12px; font-family: monospace; font-size: 12px;
+            border-radius: 8px; z-index: 10000; max-width: 400px;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #a6e3a1; }
+    </style>
+    <script src="/static/live2dsdk/live2dcubismcore.min.js"></script>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="log">📦 初始化...</div>
+    <script>
+        const logDiv = document.getElementById('log');
+        function log(msg, isError) {
+            const cls = isError ? 'error' : 'success';
+            const prefix = isError ? '❌' : '✅';
+            logDiv.innerHTML += `<br><span class="${cls}">${prefix} ${msg}</span>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(msg);
+        }
+
+        const MODEL_DIR = '';  // 当前目录
+        const MODEL_JSON = 'AnAn-model.model3.json';
+
+        window.onload = async () => {
+            try {
+                // 1. 检查 Core
+                if (typeof Live2DCubismCore === 'undefined') throw new Error('Core 未加载');
+                log('Core 已加载');
+
+                // 2. 获取 WebGL
+                const canvas = document.getElementById('canvas');
+                const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                if (!gl) throw new Error('WebGL 不支持');
+                log('WebGL 支持');
+
+                // 3. 加载 model3.json
+                log(`加载: ${MODEL_JSON}`);
+                const jsonRes = await fetch(MODEL_JSON);
+                if (!jsonRes.ok) throw new Error(`HTTP ${jsonRes.status}`);
+                const json = await jsonRes.json();
+                log(`Cubism ${json.Version}`);
+
+                // 4. 加载 .moc3
+                const mocFile = json.FileReferences.Moc;
+                log(`加载 .moc3: ${mocFile}`);
+                const mocRes = await fetch(mocFile);
+                if (!mocRes.ok) throw new Error(`.moc3 HTTP ${mocRes.status}`);
+                const mocBuffer = await mocRes.arrayBuffer();
+                log(`.moc3 大小: ${mocBuffer.byteLength} 字节`);
+
+                // 5. 创建 Moc 和 Model
+                const moc = Live2DCubismCore.Moc.fromArrayBuffer(mocBuffer);
+                if (!moc) throw new Error('Moc 创建失败');
+                log('Moc 创建成功');
+
+                const model = moc.createModel();
+                if (!model) throw new Error('Model 创建失败');
+                log('Model 创建成功');
+
+                // 6. 加载贴图
+                const textures = json.FileReferences.Textures;
+                log(`贴图数量: ${textures.length}`);
+
+                // 加载所有贴图
+                const loadedTextures = [];
+                for (let i = 0; i < textures.length; i++) {
+                    const texUrl = textures[i];
+                    log(`加载贴图 ${i}: ${texUrl}`);
+                    const img = new Image();
+                    await new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            // 创建 WebGL 纹理
+                            const texture = gl.createTexture();
+                            gl.bindTexture(gl.TEXTURE_2D, texture);
+                            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+                            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                            loadedTextures.push(texture);
+                            resolve();
+                        };
+                        img.onerror = () => reject(new Error(`贴图加载失败: ${texUrl}`));
+                        img.src = texUrl;
+                    });
+                    log(`贴图 ${i} 加载完成`);
+                }
+
+                // 7. 设置画布和渲染
+                canvas.width = 800;
+                canvas.height = 600;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                gl.clearColor(0.1, 0.2, 0.3, 1.0);
+
+                // 8. 获取模型参数
+                const paramCount = model.getParameterCount();
+                log(`参数数量: ${paramCount}`);
+
+                // 9. 简单动画
+                let lastTime = 0;
+                function animate(now) {
+                    const deltaTime = Math.min(0.05, (now - lastTime) / 1000);
+                    lastTime = now;
+
+                    // 更新模型（需要传入 delta time 和输入）
+                    model.update();
+
+                    // 获取模型的绘制数据
+                    const drawableCount = model.getDrawableCount();
+
+                    // 清空画布
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+
+                    // 这里需要实现完整的绘制循环，比较复杂
+                    // 为了快速验证，我们先用文字表示模型已加载
+
+                    requestAnimationFrame(animate);
+                }
+
+                log('🎉 模型数据已加载！');
+                log('⚠️ 完整渲染需要实现绘制循环，但模型核心已工作');
+
+                // 在 canvas 上显示成功
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#a6e3a1';
+                ctx.font = '16px monospace';
+                ctx.fillText('✅ 模型已加载', 50, 80);
+                ctx.fillText(`🎉 参数数量: ${paramCount}`, 50, 120);
+                ctx.fillText('贴图已加载，渲染器配置中...', 50, 160);
+
+            } catch (err) {
+                log(err.message, true);
+            }
+        };
+    </script>
+</body>
+</html>

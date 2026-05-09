@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助 · 灵枢</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', sans-serif;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .help-section {
+            margin: 30px 0;
+            border-left: 3px solid #667eea;
+            padding-left: 20px;
+        }
+
+        .help-section h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .help-section p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .shortcut-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .shortcut-key {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #495057;
+        }
+
+        .shortcut-desc {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .tip-box {
+            background: #e3f2fd;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .tip-box h3 {
+            color: #1976d2;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .step-list {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+
+        .step-list li {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        hr {
+            margin: 30px 0;
+            border: none;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='/'">← 返回主界面</button>
+
+        <div class="card">
+            <h1>
+                <span>📚</span>
+                帮助与教程
+            </h1>
+            <p style="color: #666; margin-bottom: 30px;">快速上手灵枢AI对话助手</p>
+
+            <!-- 快速开始 -->
+            <div class="help-section">
+                <h2>🚀 快速开始</h2>
+                <p>1. 在输入框中输入你的问题，按 <code>Enter</code> 或点击「发送」按钮</p>
+                <p>2. AI会实时流式回复你的问题</p>
+                <p>3. 左侧侧边栏可以查看和管理所有对话历史</p>
+                <p>4. 双击对话名称可以修改标题</p>
+            </div>
+
+            <!-- 快捷键 -->
+            <div class="help-section">
+                <h2>⌨️ 快捷键</h2>
+                <div class="shortcut-grid">
+                    <div class="shortcut-item">
+                        <span class="shortcut-desc">发送消息</span>
+                        <span class="shortcut-key">Enter</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-desc">新建对话</span>
+                        <span class="shortcut-key">Ctrl + N</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-desc">清空对话</span>
+                        <span class="shortcut-key">Ctrl + L</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-desc">复制消息</span>
+                        <span class="shortcut-key">右键 → 复制</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能说明 -->
+            <div class="help-section">
+                <h2>⚡ Agent模式</h2>
+                <p>勾选「Agent模式」后，AI可以调用以下工具：</p>
+                <ul class="step-list">
+                    <li>🔢 <strong>数学计算</strong>：自动计算表达式</li>
+                    <li>⏰ <strong>时间查询</strong>：获取当前日期时间</li>
+                    <li>🌐 <strong>网络搜索</strong>：搜索实时信息</li>
+                    <li>🌤️ <strong>天气查询</strong>：获取城市天气</li>
+                </ul>
+                <div class="tip-box">
+                    <h3>💡 提示</h3>
+                    <p>Agent模式适合需要实时信息或计算的场景，普通对话可不开启以提高速度。</p>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h2>🎭 人设系统</h2>
+                <p>在「看板娘界面」可以切换不同人设，也可以在「人设管理」中创建自定义人设。</p>
+                <ul class="step-list">
+                    <li>点击「⚙️ 人设管理」进入管理页面</li>
+                    <li>点击「+ 新建人设」或「从模板创建」</li>
+                    <li>填写人设名称、描述和系统提示词</li>
+                    <li>保存后在對話中选擇对应人设即可</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>📝 消息操作</h2>
+                <ul class="step-list">
+                    <li><strong>双击用户消息</strong>：可编辑并重新发送</li>
+                    <li><strong>右键消息</strong>：复制内容或删除消息</li>
+                    <li><strong>左侧历史栏</strong>：双击可重命名对话，点击「×」删除对话</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>🔌 模型切换</h2>
+                <p>支持两种模型：</p>
+                <ul class="step-list">
+                    <li><strong>qwen2:7b (本地)</strong>：免费、离线可用，无需网络，快速回复</li>
+                    <li><strong>qwen3-vl:8b (本地)</strong>：免费、离线可用，无需网络，回复比7b慢，比较智能</li>
+                    <li><strong>DeepSeek (云端)</strong>：最智能、支持更長上下文，需要API Key</li>
+                </ul>
+                <div class="tip-box">
+                    <h3>💡 提示</h3>
+                    <p>首次使用DeepSeek需要先到「系统设置」中配置API Key。</p>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h2>❓ 常见问题</h2>
+                <ul class="step-list">
+                    <li><strong>AI不回复？</strong> 检查Ollama是否运行，或网络是否正常</li>
+                    <li><strong>DeepSeek连接失败？</strong> 检查API Key是否正确，账户是否有余额</li>
+                    <li><strong>代码没有高亮？</strong> 确保在代码块中指定了语言类型（如```python）</li>
+                    <li><strong>对话记录丢失？</strong> 检查自动保存设置是否开启</li>
+                </ul>
+            </div>
+
+            <hr>
+
+            <div style="text-align: center; color: #999; font-size: 13px;">
+                遇到其他问题？欢迎反馈<br>
+                📧 Email: 3561855366@qq.com
+            </div>
+        </div>
+    </div>
+</body>
+</html>

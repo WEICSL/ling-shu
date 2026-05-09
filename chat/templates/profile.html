@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>个人中心 · 灵枢</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				font-family: 'Microsoft YaHei', sans-serif;
+				padding: 40px 20px;
+			}
+
+			.container {
+				max-width: 900px;
+				margin: 0 auto;
+			}
+
+			.back-btn {
+				background: rgba(255, 255, 255, 0.2);
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 14px;
+				margin-bottom: 20px;
+				transition: all 0.3s;
+			}
+
+			.back-btn:hover {
+				background: rgba(255, 255, 255, 0.3);
+				transform: translateY(-2px);
+			}
+
+			.card {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 20px;
+				overflow: hidden;
+				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+			}
+
+			.profile-header {
+				background: linear-gradient(135deg, #667eea, #764ba2);
+				padding: 40px;
+				text-align: center;
+				color: white;
+			}
+
+			.avatar-preview {
+				width: 100px;
+				height: 100px;
+				font-size: 60px;
+				background: rgba(255, 255, 255, 0.2);
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0 auto 15px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+				cursor: pointer;
+				transition: all 0.3s;
+				overflow: hidden;
+			}
+
+			.avatar-preview img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.avatar-preview:hover {
+				transform: scale(1.05);
+				background: rgba(255, 255, 255, 0.3);
+			}
+
+			.profile-header h2 {
+				font-size: 24px;
+				margin-bottom: 5px;
+			}
+
+			.profile-header .username {
+				opacity: 0.9;
+				font-size: 14px;
+			}
+
+			.profile-body {
+				padding: 30px;
+			}
+
+			.info-section {
+				margin-bottom: 30px;
+				padding-bottom: 20px;
+				border-bottom: 1px solid #eee;
+			}
+
+			.info-section h3 {
+				color: #333;
+				margin-bottom: 20px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.info-row {
+				display: flex;
+				margin-bottom: 15px;
+			}
+
+			.info-label {
+				width: 100px;
+				font-weight: bold;
+				color: #666;
+			}
+
+			.info-value {
+				flex: 1;
+				color: #333;
+			}
+
+			.edit-btn {
+				background: #667eea;
+				color: white;
+				border: none;
+				padding: 8px 20px;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 14px;
+				transition: all 0.3s;
+			}
+
+			.edit-btn:hover {
+				background: #5a67d8;
+				transform: translateY(-1px);
+			}
+
+			.danger-btn {
+				background: #dc3545;
+				color: white;
+				border: none;
+				padding: 8px 20px;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 14px;
+				transition: all 0.3s;
+			}
+
+			.danger-btn:hover {
+				background: #c82333;
+			}
+
+			.stats-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 15px;
+				margin-top: 15px;
+			}
+
+			.stat-card {
+				background: #f8f9fa;
+				border-radius: 12px;
+				padding: 20px;
+				text-align: center;
+			}
+
+			.stat-number {
+				font-size: 28px;
+				font-weight: bold;
+				color: #667eea;
+			}
+
+			.stat-label {
+				font-size: 12px;
+				color: #666;
+				margin-top: 5px;
+			}
+
+			/* 模态框样式 */
+			.modal {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.5);
+				z-index: 1000;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.modal-content {
+				background: white;
+				border-radius: 15px;
+				width: 450px;
+				max-width: 90%;
+				max-height: 80%;
+				overflow-y: auto;
+				padding: 25px;
+			}
+
+			.modal-header {
+				font-size: 20px;
+				font-weight: bold;
+				margin-bottom: 20px;
+				color: #333;
+			}
+
+			.modal-body .form-group {
+				margin-bottom: 15px;
+			}
+
+			.modal-body label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+				color: #333;
+			}
+
+			.modal-body input,
+			.modal-body select {
+				width: 100%;
+				padding: 10px;
+				border: 1px solid #ddd;
+				border-radius: 8px;
+			}
+
+			.modal-footer {
+				display: flex;
+				justify-content: flex-end;
+				gap: 10px;
+				margin-top: 20px;
+			}
+
+			/* 头像选择器 */
+			.avatar-selector {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 12px;
+				margin-top: 10px;
+				margin-bottom: 15px;
+			}
+
+			.avatar-option {
+				width: 55px;
+				height: 55px;
+				font-size: 35px;
+				background: #f0f0f0;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				transition: all 0.3s;
+				border: 3px solid transparent;
+			}
+
+			.avatar-option:hover {
+				transform: scale(1.1);
+				background: #e0e0e0;
+			}
+
+			.avatar-option.selected {
+				border-color: #667eea;
+				background: #e8eaff;
+				transform: scale(1.05);
+			}
+
+			.avatar-option img {
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+				object-fit: cover;
+			}
+
+			.upload-area {
+				border: 2px dashed #ddd;
+				border-radius: 10px;
+				padding: 15px;
+				text-align: center;
+				cursor: pointer;
+				transition: all 0.3s;
+				margin-top: 10px;
+			}
+
+			.upload-area:hover {
+				border-color: #667eea;
+				background: #f8f9ff;
+			}
+
+			.upload-area input {
+				display: none;
+			}
+
+			.toast {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				background: #333;
+				color: white;
+				padding: 12px 20px;
+				border-radius: 8px;
+				z-index: 1100;
+				animation: slideIn 0.3s ease;
+			}
+
+			@keyframes slideIn {
+				from {
+					transform: translateX(100%);
+					opacity: 0;
+				}
+
+				to {
+					transform: translateX(0);
+					opacity: 1;
+				}
+			}
+
+			.avatar-tabs {
+				display: flex;
+				gap: 10px;
+				margin-bottom: 15px;
+				border-bottom: 1px solid #eee;
+			}
+
+			.avatar-tab {
+				padding: 8px 16px;
+				cursor: pointer;
+				color: #666;
+				border-bottom: 2px solid transparent;
+			}
+
+			.avatar-tab.active {
+				color: #667eea;
+				border-bottom-color: #667eea;
+			}
+
+			.avatar-panel {
+				display: none;
+			}
+
+			.avatar-panel.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<button class="back-btn" onclick="window.location.href='/'">← 返回主界面</button>
+
+			<div class="card">
+				<div class="profile-header">
+					<div class="avatar-preview" id="avatar-preview" onclick="showEditProfileModal()">👤</div>
+					<h2 id="username-display">加载中...</h2>
+					<div class="username" id="user-username">@username</div>
+				</div>
+
+				<div class="profile-body">
+					<div class="info-section">
+						<h3>📋 基本信息</h3>
+						<div class="info-row">
+							<div class="info-label">昵称</div>
+							<div class="info-value" id="display-name">-</div>
+						</div>
+						<div class="info-row">
+							<div class="info-label">个人简介</div>
+							<div class="info-value" id="display-bio">暂无简介</div>
+						</div>
+						<div class="info-row">
+							<div class="info-label">注册时间</div>
+							<div class="info-value" id="display-joined">-</div>
+						</div>
+						<div style="margin-top: 15px;">
+							<button class="edit-btn" onclick="showEditProfileModal()">✏️ 编辑资料</button>
+							<button class="edit-btn" onclick="showChangePasswordModal()"
+								style="background: #ffc107; margin-left: 10px;">🔑 修改密码</button>
+						</div>
+					</div>
+
+					<div class="info-section">
+						<h3>⚙️ 偏好设置</h3>
+						<div class="info-row">
+							<div class="info-label">默认模型</div>
+							<div class="info-value" id="display-model">-</div>
+						</div>
+						<div style="margin-top: 15px;">
+							<button class="edit-btn" onclick="showSettingsModal()">⚙️ 修改偏好</button>
+						</div>
+					</div>
+
+					<div class="info-section">
+						<h3>📊 使用统计</h3>
+						<div class="stats-grid">
+							<div class="stat-card">
+								<div class="stat-number" id="stat-conversations">0</div>
+								<div class="stat-label">对话总数</div>
+							</div>
+							<div class="stat-card">
+								<div class="stat-number" id="stat-messages">0</div>
+								<div class="stat-label">消息总数</div>
+							</div>
+							<div class="stat-card">
+								<div class="stat-number" id="stat-days">0</div>
+								<div class="stat-label">活跃天数</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="info-section">
+						<h3>🔐 账号安全</h3>
+						<div style="display: flex; gap: 15px;">
+							<button class="danger-btn" onclick="logout()">🚪 退出登录</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 编辑资料模态框 -->
+		<div id="edit-profile-modal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">编辑资料</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>头像</label>
+						<div class="avatar-tabs">
+							<div class="avatar-tab active" data-panel="emoji">😊 Emoji</div>
+							<div class="avatar-tab" data-panel="upload">📷 上传图片</div>
+						</div>
+
+						<!-- Emoji 选择面板 -->
+						<div class="avatar-panel active" id="panel-emoji">
+							<div class="avatar-selector" id="avatar-selector">
+								<div class="avatar-option" data-avatar="👤">👤</div>
+								<div class="avatar-option" data-avatar="😊">😊</div>
+								<div class="avatar-option" data-avatar="😎">😎</div>
+								<div class="avatar-option" data-avatar="🤓">🤓</div>
+								<div class="avatar-option" data-avatar="🐱">🐱</div>
+								<div class="avatar-option" data-avatar="🐶">🐶</div>
+								<div class="avatar-option" data-avatar="🦊">🦊</div>
+								<div class="avatar-option" data-avatar="🐼">🐼</div>
+								<div class="avatar-option" data-avatar="⭐">⭐</div>
+								<div class="avatar-option" data-avatar="💪">💪</div>
+								<div class="avatar-option" data-avatar="🎓">🎓</div>
+								<div class="avatar-option" data-avatar="💻">💻</div>
+								<div class="avatar-option" data-avatar="🎨">🎨</div>
+								<div class="avatar-option" data-avatar="🎵">🎵</div>
+								<div class="avatar-option" data-avatar="🏀">🏀</div>
+								<div class="avatar-option" data-avatar="⚽">⚽</div>
+								<div class="avatar-option" data-avatar="🚀">🚀</div>
+								<div class="avatar-option" data-avatar="🌈">🌈</div>
+							</div>
+						</div>
+
+						<!-- 上传图片面板 -->
+						<div class="avatar-panel" id="panel-upload">
+							<div class="upload-area" id="upload-area">
+								<div style="font-size: 40px; margin-bottom: 8px;">📸</div>
+								<div>点击或拖拽上传图片</div>
+								<div style="font-size: 12px; color: #999; margin-top: 5px;">支持 JPG、PNG，不超过 2MB</div>
+								<input type="file" id="avatar-upload" accept="image/jpeg,image/png,image/jpg">
+							</div>
+							<div id="upload-preview" style="display: none; margin-top: 15px; text-align: center;">
+								<img id="preview-img"
+									style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+							</div>
+						</div>
+						<input type="hidden" id="edit-avatar" value="👤">
+						<input type="hidden" id="avatar-type" value="emoji">
+					</div>
+					<div class="form-group">
+						<label>昵称</label>
+						<input type="text" id="edit-name" placeholder="昵称">
+					</div>
+					<div class="form-group">
+						<label>个人简介</label>
+						<input type="text" id="edit-bio" placeholder="介绍一下自己">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="edit-btn" onclick="closeModal('edit-profile-modal')">取消</button>
+					<button class="edit-btn" onclick="saveProfile()" style="background: #28a745;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 修改密码模态框 -->
+		<div id="change-password-modal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">修改密码</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>当前密码</label>
+						<input type="password" id="old-password">
+					</div>
+					<div class="form-group">
+						<label>新密码</label>
+						<input type="password" id="new-password">
+					</div>
+					<div class="form-group">
+						<label>确认新密码</label>
+						<input type="password" id="confirm-password">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="edit-btn" onclick="closeModal('change-password-modal')">取消</button>
+					<button class="edit-btn" onclick="changePassword()" style="background: #28a745;">确认修改</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 偏好设置模态框 -->
+		<div id="settings-modal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">偏好设置</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>默认模型</label>
+						<select id="edit-model">
+							<option value="deepseek-chat">DeepSeek (云端)</option>
+							<option value="qwen2:7b">qwen2:7b (本地)</option>
+							<option value="qwen3-vl:8b">qwen3-vl:8b (本地)</option>
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="edit-btn" onclick="closeModal('settings-modal')">取消</button>
+					<button class="edit-btn" onclick="savePreferences()" style="background: #28a745;">保存</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const csrftoken = getCookie('csrftoken');
+			let selectedAvatar = '👤';
+			let uploadedImageData = null;
+
+			function getCookie(name) {
+				const value = `; ${document.cookie}`;
+				const parts = value.split(`; ${name}=`);
+				if (parts.length === 2) return parts.pop().split(';').shift();
+				return '';
+			}
+
+			function showToast(message, type = 'success') {
+				const toast = document.createElement('div');
+				toast.className = 'toast';
+				toast.textContent = message;
+				toast.style.background = type === 'success' ? '#28a745' : '#dc3545';
+				document.body.appendChild(toast);
+				setTimeout(() => toast.remove(), 3000);
+			}
+
+			function showModal(id) {
+				document.getElementById(id).style.display = 'flex';
+			}
+
+			function closeModal(id) {
+				document.getElementById(id).style.display = 'none';
+			}
+
+			// 初始化头像选择器
+			function initAvatarSelector() {
+				document.querySelectorAll('.avatar-option').forEach(option => {
+					option.addEventListener('click', function() {
+						document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove(
+							'selected'));
+						this.classList.add('selected');
+						selectedAvatar = this.getAttribute('data-avatar');
+						document.getElementById('edit-avatar').value = selectedAvatar;
+						document.getElementById('avatar-type').value = 'emoji';
+						document.getElementById('avatar-preview').innerHTML = selectedAvatar;
+					});
+				});
+			}
+
+			// 标签页切换
+			function initAvatarTabs() {
+				document.querySelectorAll('.avatar-tab').forEach(tab => {
+					tab.addEventListener('click', function() {
+						document.querySelectorAll('.avatar-tab').forEach(t => t.classList.remove('active'));
+						document.querySelectorAll('.avatar-panel').forEach(p => p.classList.remove('active'));
+						this.classList.add('active');
+						document.getElementById(`panel-${this.dataset.panel}`).classList.add('active');
+					});
+				});
+			}
+
+			// 图片上传处理
+			function initImageUpload() {
+				const uploadArea = document.getElementById('upload-area');
+				const fileInput = document.getElementById('avatar-upload');
+
+				uploadArea.addEventListener('click', () => fileInput.click());
+
+				fileInput.addEventListener('change', function(e) {
+					const file = e.target.files[0];
+					if (file) {
+						if (file.size > 2 * 1024 * 1024) {
+							showToast('图片大小不能超过 2MB', 'error');
+							return;
+						}
+						const reader = new FileReader();
+						reader.onload = function(event) {
+							uploadedImageData = event.target.result;
+							document.getElementById('upload-preview').style.display = 'block';
+							document.getElementById('preview-img').src = uploadedImageData;
+							document.getElementById('edit-avatar').value = uploadedImageData;
+							document.getElementById('avatar-type').value = 'image';
+							// 清除 emoji 选择的高亮
+							document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove(
+								'selected'));
+						};
+						reader.readAsDataURL(file);
+					}
+				});
+
+				// 拖拽上传
+				uploadArea.addEventListener('dragover', (e) => {
+					e.preventDefault();
+					uploadArea.style.borderColor = '#667eea';
+					uploadArea.style.background = '#f8f9ff';
+				});
+
+				uploadArea.addEventListener('dragleave', (e) => {
+					e.preventDefault();
+					uploadArea.style.borderColor = '#ddd';
+					uploadArea.style.background = '';
+				});
+
+				uploadArea.addEventListener('drop', (e) => {
+					e.preventDefault();
+					uploadArea.style.borderColor = '#ddd';
+					uploadArea.style.background = '';
+					const file = e.dataTransfer.files[0];
+					if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg')) {
+						if (file.size > 2 * 1024 * 1024) {
+							showToast('图片大小不能超过 2MB', 'error');
+							return;
+						}
+						const reader = new FileReader();
+						reader.onload = function(event) {
+							uploadedImageData = event.target.result;
+							document.getElementById('upload-preview').style.display = 'block';
+							document.getElementById('preview-img').src = uploadedImageData;
+							document.getElementById('edit-avatar').value = uploadedImageData;
+							document.getElementById('avatar-type').value = 'image';
+						};
+						reader.readAsDataURL(file);
+					} else {
+						showToast('请上传 JPG 或 PNG 格式的图片', 'error');
+					}
+				});
+			}
+
+			function showEditProfileModal() {
+				const currentAvatar = document.getElementById('avatar-preview').innerHTML;
+				// 判断当前头像类型
+				if (currentAvatar.startsWith('data:image') || currentAvatar.startsWith('http')) {
+					document.getElementById('avatar-type').value = 'image';
+					document.getElementById('edit-avatar').value = currentAvatar;
+					// 切换到上传标签页
+					document.querySelector('.avatar-tab[data-panel="upload"]').click();
+				} else {
+					document.getElementById('avatar-type').value = 'emoji';
+					document.getElementById('edit-avatar').value = currentAvatar;
+					// 高亮当前选中的 emoji
+					document.querySelectorAll('.avatar-option').forEach(opt => {
+						if (opt.getAttribute('data-avatar') === currentAvatar) {
+							opt.classList.add('selected');
+						} else {
+							opt.classList.remove('selected');
+						}
+					});
+				}
+				document.getElementById('edit-name').value = document.getElementById('display-name').textContent === '-' ? '' :
+					document.getElementById('display-name').textContent;
+				document.getElementById('edit-bio').value = document.getElementById('display-bio').textContent === '暂无简介' ? '' :
+					document.getElementById('display-bio').textContent;
+				showModal('edit-profile-modal');
+			}
+
+			function showChangePasswordModal() {
+				showModal('change-password-modal');
+			}
+
+			function showSettingsModal() {
+				showModal('settings-modal');
+			}
+
+			async function loadProfile() {
+				try {
+					const response = await fetch('/api/user/profile/');
+					const data = await response.json();
+					if (data.success) {
+						const user = data.data;
+						// 显示头像（可能是 emoji 或 base64 图片）
+						const avatarValue = user.avatar || '👤';
+						if (avatarValue.startsWith('data:image') || avatarValue.startsWith('http')) {
+							document.getElementById('avatar-preview').innerHTML =
+								`<img src="${avatarValue}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+						} else {
+							document.getElementById('avatar-preview').innerHTML = avatarValue;
+						}
+						document.getElementById('username-display').textContent = user.first_name || user.username;
+						document.getElementById('user-username').textContent = '@' + user.username;
+						document.getElementById('display-name').textContent = user.first_name || '-';
+						document.getElementById('display-bio').textContent = user.bio || '暂无简介';
+						document.getElementById('display-joined').textContent = user.date_joined?.split('T')[0] || '-';
+						document.getElementById('display-model').textContent = user.preferred_model === 'deepseek-chat' ?
+							'DeepSeek (云端)' : (user.preferred_model === 'qwen2:7b' ? 'qwen2:7b (本地)' : 'qwen3-vl:8b (本地)');
+
+						document.getElementById('stat-conversations').textContent = user.stats?.conversations || 0;
+						document.getElementById('stat-messages').textContent = user.stats?.messages || 0;
+						document.getElementById('stat-days').textContent = user.stats?.active_days || 0;
+
+						// 同步侧边栏头像
+						if (document.getElementById('sidebar-avatar')) {
+							if (avatarValue.startsWith('data:image') || avatarValue.startsWith('http')) {
+								document.getElementById('sidebar-avatar').innerHTML =
+									`<img src="${avatarValue}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">`;
+							} else {
+								document.getElementById('sidebar-avatar').innerHTML = avatarValue;
+							}
+						}
+					}
+				} catch (error) {
+					console.error('加载个人资料失败:', error);
+				}
+			}
+
+			async function saveProfile() {
+				const avatarType = document.getElementById('avatar-type').value;
+				let avatarValue = document.getElementById('edit-avatar').value;
+
+				// 如果是图片且是 base64，保持原样
+				const data = {
+					avatar: avatarValue,
+					first_name: document.getElementById('edit-name').value,
+					bio: document.getElementById('edit-bio').value
+				};
+
+				try {
+					const response = await fetch('/api/user/profile/', {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRFToken': csrftoken
+						},
+						body: JSON.stringify(data)
+					});
+					const result = await response.json();
+					if (result.success) {
+						showToast('保存成功');
+						closeModal('edit-profile-modal');
+						loadProfile();
+						// 保存成功后，如果主界面在另一个标签页，可以发送消息刷新
+						if (window.opener) {
+							window.opener.postMessage('refreshUserInfo', '*');
+						}
+					} else {
+						showToast(result.error, 'error');
+					}
+				} catch (error) {
+					showToast('保存失败', 'error');
+				}
+			}
+
+			async function changePassword() {
+				const oldPassword = document.getElementById('old-password').value;
+				const newPassword = document.getElementById('new-password').value;
+				const confirmPassword = document.getElementById('confirm-password').value;
+
+				if (newPassword !== confirmPassword) {
+					showToast('两次输入的新密码不一致', 'error');
+					return;
+				}
+
+				try {
+					const response = await fetch('/api/user/change-password/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRFToken': csrftoken
+						},
+						body: JSON.stringify({
+							old_password: oldPassword,
+							new_password: newPassword
+						})
+					});
+					const result = await response.json();
+					if (result.success) {
+						showToast('密码修改成功，请重新登录');
+						setTimeout(() => {
+							window.location.href = '/logout/';
+						}, 1500);
+					} else {
+						showToast(result.error, 'error');
+					}
+				} catch (error) {
+					showToast('修改失败', 'error');
+				}
+			}
+
+			async function savePreferences() {
+				const data = {
+					preferred_model: document.getElementById('edit-model').value
+				};
+				try {
+					const response = await fetch('/api/user/preferences/', {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRFToken': csrftoken
+						},
+						body: JSON.stringify(data)
+					});
+					const result = await response.json();
+					if (result.success) {
+						showToast('保存成功');
+						closeModal('settings-modal');
+						loadProfile();
+					} else {
+						showToast(result.error, 'error');
+					}
+				} catch (error) {
+					showToast('保存失败', 'error');
+				}
+			}
+
+			function logout() {
+				if (confirm('确定要退出登录吗？')) {
+					window.location.href = '/logout/';
+				}
+			}
+
+			// 初始化
+			initAvatarSelector();
+			initAvatarTabs();
+			initImageUpload();
+			loadProfile();
+		</script>
+	</body>
+</html>

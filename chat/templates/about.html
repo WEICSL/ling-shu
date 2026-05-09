@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 · 灵枢</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', sans-serif;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .version {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 30px;
+            display: inline-block;
+            background: #e8eaff;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .info-section {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-section p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tech-tag {
+            background: #e9ecef;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #495057;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .link-btn {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .link-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='/'">← 返回主界面</button>
+
+        <div class="card">
+            <div class="logo">🧠</div>
+            <h1>灵枢 · LingShu</h1>
+            <div class="version">v1.0.0</div>
+            <div class="subtitle">
+                本地 + 云端 双核AI对话助手<br>
+                让智能触手可及
+            </div>
+
+            <div class="info-section">
+                <h3>📌 项目简介</h3>
+                <p>灵枢是一款集成本地Ollama模型和云端DeepSeek API的智能对话平台。<br>
+                支持多会话管理、Agent工具调用、人设定制等功能，提供流畅的AI对话体验。</p>
+            </div>
+
+            <div class="info-section">
+                <h3>🛠️ 技术栈</h3>
+                <div class="tech-stack">
+                    <span class="tech-tag">Django 6.0</span>
+                    <span class="tech-tag">Ollama</span>
+                    <span class="tech-tag">DeepSeek API</span>
+                    <span class="tech-tag">SQLite</span>
+                    <span class="tech-tag">Live2D</span>
+                    <span class="tech-tag">Marked.js</span>
+                    <span class="tech-tag">Highlight.js</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>✨ 核心功能</h3>
+                <ul class="feature-list">
+                    <li>💬 多会话对话管理</li>
+                    <li>🤖 Agent模式（工具调用）</li>
+                    <li>🎭 可定制AI人设</li>
+                    <li>🎨 Markdown渲染 + 代码高亮</li>
+                    <li>🖱️ 右键复制/删除消息</li>
+                    <li>📱 响应式界面设计</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h3>👨‍💻 开发者</h3>
+                <p>独立开发 · 学习项目</p>
+                <p>📧 联系：3561855366@qq.com</p>
+                <p>🐙 GitHub：<a href="#" class="link-btn">github.com/WEICSL/ling-shu</a></p>
+            </div>
+
+            <div class="footer">
+                © 2026 灵枢 · 让AI对话更自然
+            </div>
+        </div>
+    </div>
+</body>
+</html>
